@@ -18,6 +18,7 @@ import os
 import sys
 import time
 
+import requests
 import trio
 from trio_cdp import open_cdp, dom, page, target,runtime,network
 from Mymanager import MyChromeRemoteDebugInterface
@@ -31,7 +32,7 @@ logging.getLogger('trio-websocket').setLevel(logging.WARNING)
 async def main():
     from trio_cdp import open_cdp, page, dom
 
-    async with open_cdp('ws://127.0.0.1:9922/devtools/browser/4e62abb5-65f3-48f8-8b16-4b66e78ad9b4') as conn:
+    async with open_cdp('ws://127.0.0.1:9922/devtools/browser/e7a640f6-2cf2-49d2-8f8c-cd76e4e0c95b') as conn:
         # Find the first available target (usually a browser tab).
         targets = await target.get_targets()
         target_id = targets[0].target_id
@@ -39,9 +40,11 @@ async def main():
         # # Create a new session with the chosen target.
         async with conn.open_session(target_id) as session:
             time1=time.time()
-            print(await network.enable())
-            result=await target.create_browser_context(proxy_server='SOCKS5://127.0.0.1:1081')
 
+
+            result=await target.create_browser_context(proxy_server='SOCKS5://127.0.0.1:1081')
+            await network.enable()
+            await target.create_target(url='',browser_context_id=result)
             new_headers = {
                 "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
                 "accept-language": "zh-CN,zh;q=0.9",
@@ -66,13 +69,18 @@ async def main():
 
                  await network.set_user_agent_override(user_agent=ua)
 
-
+            requests.Response
 
             await network.set_extra_http_headers(headers=header_args)
 
             expression=MyChromeRemoteDebugInterface().xhr_fetch("http://httpbin.org/ip")
             result=await runtime.evaluate(expression=expression,return_by_value=True)
-            await target.create_target(url='https://tools.scrapfly.io/api/fp/ja3?extended=1',browser_context_id=result)
+            pattern = '^(.*?):(.*)$'
+
+            split(sep=None, maxsplit=None)
+            headers = dict([line.split(": ", 1) for line in raw_headers.split("\n")])
+
+            #await target.create_target(url='https://tools.scrapfly.io/api/fp/ja3?extended=1',browser_context_id=result)
             print(time.time()-time1)
             print(result)
            # print(await target.get_browser_contexts())
